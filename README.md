@@ -5,6 +5,11 @@ A vocabulary manager that hooks into Anki flashcards and web resources.
 Web resources automatically generate card definitions.
 
 
+## Issues
+
+- not sure about `ij` and any other special character usage: https://en.wikipedia.org/wiki/Dutch_orthography
+
+
 ## MVP
 
 Given a `Vocab Item`, `Vocab Type`, and `Language Usage Source`.
@@ -14,15 +19,20 @@ Generate an anki flash card for the `Vocab Item`
 
 ### MVP Concessions
 
-Lets hardcode the `Vocab Type` to whatever interglot accepts.
+- Lets hardcode the `Vocab Type` to whatever interglot accepts.
   - Interglot provides google and bing machine translations...
   - Interglot search URL example: `https://www.interglot.com/dictionary/nl/en/search?q=op+het+strand&m=`
+
+- For now, try out the interglot definition and store for private use.
+  - beautiful soup 4 to grab the right section, then output a text format dump
+  - In the future, just parse the whole `.dict.dz` format lexicon from freedict.org and contribute back to that...
 
 
 ### Nederlands Language Resources
 
 Remember the concept of `headwords` or root words.  Headwords must be mapped onto derivatives like plurals or conjugations (is there a name for these derivatives?)
 
+Ideally there is a tool I can draw from and contribute back to. FreeDict might be a good tool.
 
 - FreeDict: free dictionary files
   - Actively maintained on github: https://github.com/freedict/fd-dictionaries
@@ -33,9 +43,10 @@ Remember the concept of `headwords` or root words.  Headwords must be mapped ont
     - `nl->en`: 22747 headwords
     - `en->nl`: 7714 headwords
   - https://freedict.org/
-  - Free API: https://freedict.org/freedict-database.json
-    - I guess this is self documenting?
-
+  - metadata API: https://freedict.org/freedict-database.json
+    - Good way to check for dict updates
+    - This project is slow and I would probably be the only person updating these two dictionaries
+    - While it would be nice to have a round trip contribution and update method, it's out of scope right now
 
 - Interglot
   - Seems great, how to query?
