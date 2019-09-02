@@ -16,6 +16,50 @@ Given a `Vocab Item`, `Vocab Type`, and `Language Usage Source`.
 
 Generate an anki flash card for the `Vocab Item`
 
+### MVP Workflow
+
+#### CREATE
+
+- create anki card probably in dynamodb
+  - how easy to update and version dynamodb record? how much upfront architecture planning on the document (usually none...)
+- Go to web page, paste into a multiline text box.
+- Response is a preview of the anki card information with a submit button
+- Ability to add tags for the card
+- Submit action triggers:
+  1. anki card saved in database as some string format or something
+  2. anki card deployed to any tagged decks
+    - avoid losing any existing memorization history
+  3. store raw in database: cleaned_words, response_text, and translations, anki card, tags
+    - unique on exact cleaned_words would be great, also need an id probably for futureproofing
+    - don't want to be too unique so we can support phrases and sentences later with gcp google translate api
+  4. forward to `read` page for object
+
+#### READ
+
+- index page with cards in order added
+- ability to filter by 
+  - list of substring tokens
+  - tags - one or multiple, e.g. `lang-nl` and `loanwords`
+- unique url per card, details specified elsewhere
+  - probably something like `/cards/<id>`
+
+
+#### UPDATE
+
+- anki card ideally versioned, maybe using json diffs or a dynamodb document version history, blah
+- would be pretty useful when adding features...
+- regenerate anki card, replace old card without losing memorization data
+- probably not MVP
+- *major* difference in ANKI: we want to keep the anki card memorization data
+- since we are generating everything from `cleaned_words`, this process is closer like DELETE+CREATE on the db side
+
+
+#### DELETE
+
+- probably not MVP
+- need to remove the anki card from any decks, will lose any associated memorization data...
+- drop the database record
+
 
 ### MVP Concessions
 
