@@ -1,13 +1,10 @@
 ''' Get a response from interglot.com
 '''
-
-import requests
 import urllib
-from bs4 import BeautifulSoup
+import re
 
-def build_search_url(base_url, path='', qs=''):
-    ''' stub wrapper for urlunparse: use for any https qs-based search site
-    '''
+from bs4 import BeautifulSoup
+import requests
 
 def cleanup_phrase_for_search(text):
     ''' clean up a phrase for interglot, single spaced words only
@@ -33,7 +30,6 @@ def cleanup_phrase_for_search(text):
 
     return text_alphanum_only
 
-
 if __name__ == '__main__':
     '''
     based on: URL = 'https://www.interglot.com/dictionary/nl/en/search?q=op+het+strand&m='
@@ -46,19 +42,30 @@ if __name__ == '__main__':
     URL = urllib.parse.urlunparse(url_terms)
 
     words = "OP HEt Strand"
+    #words = "OP"
 
     INTERGLOT_SEARCH_QS = { 'q' : cleanup_phrase_for_search(words) }
 
     resp = requests.get(URL, params=INTERGLOT_SEARCH_QS)
 
     if resp.status_code == 200:
-        soup = BeautifulSoup(resp.text)
+        soup = BeautifulSoup(resp.text, 'html.parser')
     else:
         # TODO enable flask logging
         #app.logging.error("Interglot response was not 200.")
         pass
 
-    with open('definition.html', 'w') as f:
-        f.write(resp.text)
+    translation_contents = soup.find_all('ol', class_='defTermListHangingIndent')
+    import pdb; pdb.set_trace()
+    if not translation_contents:
+        # TODO enable flask logging
+        #app.logging.error("No available interglot translation for {}".format(words))
+        pass
 
-    print(resp.text)
+    translations = [re.sub(r'\n+', '\n', c.getText()) for c in translation_contents]
+
+    with open('definition.html', 'w') as f:
+        translationdump = '\n'.join(translations)
+        f.write(translationdump)
+        print(translationdump)
+        print(repr(translationdump))
