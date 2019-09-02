@@ -7,8 +7,69 @@ Web resources automatically generate card definitions.
 
 ## MVP
 
+Given a `Vocab Item`, `Vocab Type`, and `Language Usage Source`.
 
-If we use a store of web resources and how to query them
+Generate an anki flash card for the `Vocab Item`
+
+
+### MVP Concessions
+
+Lets hardcode the `Vocab Type` to whatever interglot accepts.
+  - Interglot provides google and bing machine translations...
+  - Interglot search URL example: `https://www.interglot.com/dictionary/nl/en/search?q=op+het+strand&m=`
+
+
+### Nederlands Language Resources
+
+Remember the concept of `headwords` or root words.  Headwords must be mapped onto derivatives like plurals or conjugations (is there a name for these derivatives?)
+
+
+- FreeDict: free dictionary files
+  - Actively maintained on github: https://github.com/freedict/fd-dictionaries
+  - All dictionaries are encoded in TEI (version 5) which is a flexible XML format to encode human speech.
+    - How can the ANKI card also have an attached computer generated speech?
+    - Can I recruit Nederlanders to also pronounce words and contribute them?
+  - TEI XML format
+    - `nl->en`: 22747 headwords
+    - `en->nl`: 7714 headwords
+  - https://freedict.org/
+  - Free API: https://freedict.org/freedict-database.json
+    - I guess this is self documenting?
+
+
+- Interglot
+  - Seems great, how to query?
+- Google Translate Output
+  - Free < 500k characters (assume per month?)
+  - GCP API: https://cloud.google.com/translate/docs/intro-to-v3
+
+
+
+### Vocab Items, Vocab Types & Language Usage Sources
+
+A vocab item is any coherent definable composition of letters/sounds. It isn't limited to one word or one line.
+
+Vocab items require multiline fields. Anki supports this.
+
+Vocab types are Words, phrases, sentences, compositions.
+
+
+#### Language Usage Sources
+
+- Conversations on Nederlands language subreddits
+  - `/r/TheNetherlands`
+  - `/r/utrecht`
+- Kindle books
+- Nederlands Language Movies & TV
+- Existing anki flashcards
+- [OPUS: a growing collection of translated texts from the web](http://opus.nlpl.eu/)
+  - i think `nl <> en` has a bunch of words and phrases that I can use as sources.
+    - It's a bidirectional map so `en <> nl` provided the same results (i only spot checked).
+
+
+### Future Proofing
+
+Since our mvp is nederlands language definitions, lets add a `nl` tag on every card as a hook for later remapping.
 
 
 ### Web Resource Mapping
@@ -33,8 +94,6 @@ We want to version cards, and also may want to update the card templates over ti
 - DynamoDB, AWS Lambda, Zappa, Flask, flask-dynamo
 
 
-
-
 ## Initial Use Case
 
 Record dutch language words easily and quickly from a variety of devices.
@@ -47,6 +106,10 @@ Record dutch language words easily and quickly from a variety of devices.
 - Automatically generate an anki flashcard
 - Update (or replace) an existing anki flashcard set
   - Need to determine how this works so I don't lose my set progress
+- Select a word from a phrase and preview a card for that word, inheriting from the phrase.
+  - If exists, show the card.
+  - If not exists, offer a button to create the card.
+  - Is there any reason to actually join a phrase to its decomposed cards? Might not be useful.
 
 
 ## Anki Deck Questions
