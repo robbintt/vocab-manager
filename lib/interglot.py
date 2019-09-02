@@ -30,9 +30,10 @@ def cleanup_phrase_for_search(text):
 
     return text_alphanum_only
 
-if __name__ == '__main__':
-    '''
-    based on: URL = 'https://www.interglot.com/dictionary/nl/en/search?q=op+het+strand&m='
+def get_interglot_definitions(words):
+    ''' get english interglot definitions for one or more dutch words
+
+    based on search URL: 'https://www.interglot.com/dictionary/nl/en/search?q=op+het+strand&m='
     '''
     INTERGLOT_BASE_URL = 'www.interglot.com'
     INTERGLOT_URL_PATH = 'dictionary/nl/en/search'
@@ -41,10 +42,9 @@ if __name__ == '__main__':
     url_terms = ('https', INTERGLOT_BASE_URL, INTERGLOT_URL_PATH, '', '', '')
     URL = urllib.parse.urlunparse(url_terms)
 
-    words = "OP HEt Strand"
-    #words = "OP"
+    cleaned_words = cleanup_phrase_for_search(words)
 
-    INTERGLOT_SEARCH_QS = { 'q' : cleanup_phrase_for_search(words) }
+    INTERGLOT_SEARCH_QS = { 'q' : cleaned_words }
 
     resp = requests.get(URL, params=INTERGLOT_SEARCH_QS)
 
@@ -55,17 +55,30 @@ if __name__ == '__main__':
         #app.logging.error("Interglot response was not 200.")
         pass
 
-    translation_contents = soup.find_all('ol', class_='defTermListHangingIndent')
-    import pdb; pdb.set_trace()
+    # grab the definitions from the dump
+    translation_contents = soup.find_all(['ul', 'ol'], class_='defTermListHangingIndent')
     if not translation_contents:
         # TODO enable flask logging
         #app.logging.error("No available interglot translation for {}".format(words))
         pass
 
+    # strip extra newlines
     translations = [re.sub(r'\n+', '\n', c.getText()) for c in translation_contents]
 
+    return {'cleaned_words': cleaned_words, 'response_text': resp.text, 'translations': translations}
+
+
+if __name__ == '__main__':
+
+    words = "OP HEt Strand"
+    #words = "OP"
+
+    translations = get_interglot_definitions(words)['translations']
+
+    '''
     with open('definition.html', 'w') as f:
         translationdump = '\n'.join(translations)
         f.write(translationdump)
         print(translationdump)
         print(repr(translationdump))
+    '''
