@@ -9,6 +9,82 @@ Web resources automatically generate card definitions.
 
 - not sure about `ij` and any other special character usage: https://en.wikipedia.org/wiki/Dutch_orthography
 
+- Anki stuff is pretty complicated, is there a quick import feature to add a card to a deck? 
+- I can easily copy/paste from browser to anki mobile...
+- Or maybe I can go from browser to other browser, if ankiweb allows adding a card...
+
+
+## [Anki Manual](https://apps.ankiweb.net/docs/manual.html)
+
+
+#### Anki Extensions
+
+Anki is a free Python application - don't think of anki in terms of an API. 
+
+Ankiweb is convenient, but needs to be accessed from a local application. You're supposed to use the sync for personal use.
+
+
+#### Using Anki Sync
+
+Ideally I can just add a card to a deck, then run a sync against ankiweb.
+
+- docs: "the database": https://apps.ankiweb.net/docs/addons.html#the-database
+- anki source code: https://github.com/dae/
+  - anki sync source code: https://github.com/dae/anki/blob/master/anki/sync.py
+    - mergemodels: https://github.com/dae/anki/blob/master/anki/sync.py#L328
+    - mergedecks: https://github.com/dae/anki/blob/master/anki/sync.py#L348
+    - mergetags:  https://github.com/dae/anki/blob/master/anki/sync.py#L379
+    - mergerevlog: https://github.com/dae/anki/blob/master/anki/sync.py#L385
+    - mergecards: https://github.com/dae/anki/blob/master/anki/sync.py#L404
+    - mergenotes: https://github.com/dae/anki/blob/master/anki/sync.py#L410
+- https://apps.ankiweb.net/docs/addons.html
+- What data exactly does sync update? 
+  - anki has a sqlite database, how exactly does an anki sync work?
+- I want to use sync to essentially push new cards to ankiweb from my flask app
+  - Also want to update cards without losing memorization data.
+- Possible to build anki for linux... can I build it in my lambda and import it into Python? Then my flask app can sync...
+  - yes can be built from source, lets give it a whirl, bring it into our flask app
+  - maybe too many dependencies, i just need to be able to populate cards and do a "additive-only sync" of a new card + whatever associated data (deck?)
+- Finally, it would be nice to snapshot sync data in s3 so that I can recover lost state.
+
+
+- alternatively: someone wrote an anki sync server (BUT: seems to be python2): https://github.com/dsnopek/anki-sync-server
+  - Someone forked it and upgraded to python3: issues seem more active - https://github.com/tsudoko/anki-sync-server/tree/anki_2_1
+
+#### Anki Docker Container
+
+here: https://hub.docker.com/r/txgio/anki/
+
+need to use a linux machine, not clear if fargate will work or if i need some other method...
+
+
+1. spin up docker container in aws
+2. sync collection down from ankiweb
+3. add card/whatever info
+4. sync collection up to ankiweb
+5. spin container down in aws
+
+https://hub.docker.com/r/txgio/anki/
+
+### Anki Collections, Notes (decks, card templates, cards)
+
+#### Unknowns
+
+- Where is card-specific memorization data stored and is it accessed across N decks that all have "some of the same cards"?
+
+#### From The Manual
+
+> Anyone who needs to remember things in their daily life can benefit from Anki. Since it is content-agnostic and supports images, audio, videos and scientific markup (via LaTeX)...
+
+> Your collection is all the material stored in Anki – your cards, notes, decks, note types, deck options, and so on. Notes and note types are common to your whole collection rather than limited to an individual deck. 
+
+> Decks can contain other decks, which allows you to organize decks into a tree. Anki uses “::” to show different levels. A deck called “Chinese::Hanzi” refers to a “Hanzi” deck, which is part of a “Chinese” deck. If you select “Hanzi” then only the Hanzi cards will be shown; if you select “Chinese” then all Chinese cards, including Hanzi cards, will be shown.  To place decks into a tree, you can either name them with “::” between each level, or drag and drop them from the deck list. Decks that have been nested under another deck (that is, that have at least one “::” in their names) are often called subdecks, and top-level decks are sometimes called superdecks or parent decks.
+
+Anki has an abstraction for making cards out of question+answer+info called `notes`.
+
+> In order for Anki to create cards based on our notes, we need to give it a blueprint that says which fields should be displayed on the front or back of each card. This blueprint is called a card type. Each type of note can have one or more card types; when you add a note, Anki will create one card for each card type.  Each card type has two templates, one for the question and one for the answer. In the above French example, we wanted the recognition card to look like this:
+
+> Anki allows you to create different types of notes for different material. Each type of note has its own set of fields and card types. It’s a good idea to create a separate note type for each broad topic you’re studying. 
 
 ## MVP
 
@@ -29,8 +105,8 @@ Generate an anki flash card for the `Vocab Item`
   1. anki card saved in database as some string format or something
   2. anki card deployed to any tagged decks
     - avoid losing any existing memorization history
-  3. store raw in database: cleaned_words, response_text, and translations, anki card, tags
-    - unique on exact cleaned_words would be great, also need an id probably for futureproofing
+  3. store raw in database: `cleaned_words`, `response_text`, and `translations`, anki card, tags
+    - unique on exact `cleaned_words` would be great, also need an id probably for futureproofing
     - don't want to be too unique so we can support phrases and sentences later with gcp google translate api
   4. forward to `read` page for object
 
