@@ -257,3 +257,7 @@ Record dutch language words easily and quickly from a variety of devices.
   - update the decks on ankiweb
   - backup the decks automatically that exist on ankiweb today
     - some cron based operation, i could use a lambda cron with Zappa
+
+## Similar Works
+
+- [anki card maker](https://www.reddit.com/r/Anki/comments/61rxks/ankimaker_automatically_generate_anki_decks/)
